@@ -18,6 +18,9 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 db.work_list = require("./work-data.model.js")(sequelize, Sequelize);
+db.user = require("./user.model.js")(sequelize, Sequelize);
+
+db.user.hasMany(db.work_list, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
 
 module.exports = {
   db,

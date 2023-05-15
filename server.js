@@ -9,8 +9,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 const db = require("./app/model");
 db.sequelize.sync();
+
 app.use("/", api);
-app.use("/", api);
+
 app.use(function (req, res, next) {
 //   next(createError(404));
   res.send('404')

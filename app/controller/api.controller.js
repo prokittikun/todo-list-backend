@@ -1,10 +1,6 @@
-// const db = require("../model");
-// const userDB = db.db.user;
-// const infoDB = db.db.info;
-// const appDB = db.db.appInfo;
-// const allDataDB = db.db.allData;
 const db = require("../model");
 const workDB = db.db.work_list;
+const userDB = db.db.user;
 let express = require("express");
 let router = express.Router();
 let path = require("path");
@@ -16,17 +12,102 @@ function paginationCal(total, perPage, currentPage) {
     limit: perPage,
   };
 }
+exports.login = async (req, res) => {
+  try {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    if (username && password) {
+      const result = await userDB.findOne({
+        where: { username: username, password: password},
+      });
+      if (result.status === 1) {
+        const resData = {
+          resCode: "0000",
+          resData: result,
+          msg: "success",
+        };
+        res.send(resData);
+      } else if (result.status === 0) {
+        const resData = {
+          resCode: "1000",
+          resData: result,
+          msg: "user have been banned",
+        };
+        res.send(resData);
+      } else {
+        const resData = {
+          resCode: "1000",
+          resData: {},
+          msg: "user not found",
+        };
+        res.send(resData);
+      }
+    }
+  } catch (error) {
+    const resError = {
+      resCode: "1000",
+      resData: {},
+      msg: "error",
+    };
+    console.error("-> gets -> catch : ", error);
+    res.send(resError);
+  }
+};
+exports.register = async (req, res) => {
+  try {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    if (username && password) {
+      const result = await userDB.findOne({
+        where: { username: username },
+      });
+      if (result) {
+        const resData = {
+          resCode: "1000",
+          resData: {},
+          msg: "username is already exist",
+        };
+        res.send(resData);
+      } else {
+        const createData = {
+          username: username,
+          password: password,
+          status: 1,
+        };
+        const addDataUser = await userDB.create(createData);
+        const resData = {
+          resCode: "0000",
+          resData: addDataUser,
+          msg: "success",
+        };
+        res.send(resData);
+      }
+    }
+  } catch (error) {
+    const resError = {
+      resCode: "1000",
+      resData: {},
+      msg: "error",
+    };
+    console.error("-> gets -> catch : ", error);
+    res.send(resError);
+  }
+};
 exports.addWork = async (req, res) => {
   try {
     const project_name = req.body.projectName;
     const project_detail = req.body.projectDetail;
     const project_language = req.body.projectLanguage;
+    const project_status = req.body.projectStatus;
     const project_startDate = req.body.startDate;
     const project_endDate = req.body.endDate;
     if (
       project_name &&
       project_detail &&
       project_language &&
+      project_status &&
       project_startDate &&
       project_endDate
     ) {
@@ -34,6 +115,7 @@ exports.addWork = async (req, res) => {
         project_name: project_name,
         project_detail: project_detail,
         project_language: project_language,
+        project_status: project_status,
         project_start: project_startDate,
         project_end: project_endDate,
       };
@@ -84,11 +166,6 @@ exports.getPagination = async (req, res) => {
         currentPage: currentPage,
         datas: result,
       };
-      // const resData = {
-      //   resCode: "0000",
-      //   resData: count,
-      //   msg: "success",
-      // };
       res.send(resData);
     }
   } catch (error) {

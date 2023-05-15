@@ -14,6 +14,9 @@ module.exports = (sequelize, Sequelize) => {
     project_language: {
       type: Sequelize.STRING,
     },
+    project_status: {
+      type: Sequelize.STRING,
+    },
     project_start: {
       type: Sequelize.STRING,
     },
